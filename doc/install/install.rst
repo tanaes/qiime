@@ -80,7 +80,15 @@ functionality. However, if you want to use additional dependencies, your
 Conda installation of QIIME will need to have access to the executable
 files for each program you'd like to invoke as a dependency.
 Commonly-used QIIME dependencies include UCLUST (now included in the
-base installation), RDP Classifier, BLAST, USEARCH, and VSEARCH.
+base installation), RDP Classifier, BLAST, USEARCH, and VSEARCH. 
+
+These dependencies can be installed globally such that their executable
+files are visible in your $PATH variable, as we recommended in our
+`previous full installation instructions <./alternatives.html>`__. 
+However, the Conda environment makes it easy to avoid things like
+version conflicts by installing or linking these dependency programs
+directly within your QIIME Conda environment. Some suggestions for
+doing this follow.
 
 Linking to executables you already have
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -144,3 +152,37 @@ in your environment's bin:
 ::
 
     ln -s $QIIME_ENV/qiime_deps/uclustq1.2.22_i86linux64 $QIIME_ENV/bin/uclust
+
+Setting conda-environment-specific environment variables
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some dependencies, in particular the RDP Classifier, require that
+environment variables be set. You can `set up your Conda environment <http://conda.pydata.org/docs/using/envs.html#saved-environment-variables>`__
+to set these variables when you activate the environment.
+
+First, create the files and folders where Conda will look for 
+instructions when you start your environment:
+
+::
+
+    mkdir -p $QIIME_ENV/etc/conda/activate.d
+    mkdir -p $QIIME_ENV/etc/conda/deactivate.d
+    touch $QIIME_ENV/etc/conda/activate.d/env_vars.sh
+    touch $QIIME_ENV/etc/conda/deactivate.d/env_vars.sh
+
+Next, add instructions to set your desired environment variable. 
+Here, we will assume you have installed RDP Classifier in your
+$QIIME_ENV/qiime_deps directory as described above:
+
+::
+
+    echo '#!/bin/sh/' >> $QIIME_ENV/etc/conda/activate.d/env_vars.sh
+    echo "export RDP_JAR_PATH=$QIIME_ENV/qiime_deps/rdp_classifier_2.2/rdp_classifier-2.2.jar" >> $QIIME_ENV/etc/conda/activate.d/env_vars.sh
+
+Finally, add instructions to unset this environment variable when
+you deactivate the environment:
+
+::
+
+    echo '#!/bin/sh/' >> $QIIME_ENV/etc/conda/deactivate.d/env_vars.sh
+    echo "unset RDP_JAR_PATH" >> ${condaenv}/etc/conda/deactivate.d/env_vars.sh
